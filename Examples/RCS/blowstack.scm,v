@@ -1,0 +1,108 @@
+head	1.4;
+access;
+symbols;
+locks;
+comment	@# @;
+
+
+1.4
+date	2017.10.05.22.44.50;	author -;	state -;
+branches;
+next	1.3;
+
+1.3
+date	2017.10.05.22.43.35;	author -;	state -;
+branches;
+next	1.2;
+
+1.2
+date	2014.11.01.00.35.08;	author -;	state -;
+branches;
+next	1.1;
+
+1.1
+date	2009.02.13.03.38.42;	author -;	state -;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.4
+log
+@-
+@
+text
+@#!/afs/cats.ucsc.edu/courses/cmps112-wm/usr/racket/bin/mzscheme -qr
+;; $Id: blowstack.scm,v 1.3 2017-10-05 15:43:35-07 - - $
+
+;;
+;; Blow the stack by infinite recursion.  This function is not
+;; a tail call.
+;;
+
+(define modulus 1000000)
+
+(define (memory-use)
+        (truncate (/ (current-memory-use) (* 1024 1024))))
+
+(define (recur count)
+        (when (= (remainder count modulus) 0)
+              (printf "count = ~a, memory = ~a M~n"
+                      count (memory-use)))
+        (+ 1 (recur (+ 1 count))))
+
+(recur 0)
+
+
+@
+
+
+1.3
+log
+@-
+@
+text
+@d2 1
+a2 1
+;; $Id: blowstack.scm,v 1.2 2014-10-31 17:35:08-07 - - $
+d12 1
+a12 1
+        (/ (current-memory-use) (* 1024 1024)))
+d16 1
+a16 1
+              (printf "count = ~a, memory = ~a megsG~n"
+@
+
+
+1.2
+log
+@-
+@
+text
+@d2 1
+a2 1
+;; $Id: blowstack.scm,v 1.1 2009-02-12 19:38:42-08 - - $
+d11 4
+a14 1
+{define (recur count)
+d16 3
+a18 2
+              [printf "count = ~a~n" count])
+        (+ 1 (recur (+ 1 count)))}
+@
+
+
+1.1
+log
+@-
+@
+text
+@d1 2
+a2 2
+#!/afs/cats.ucsc.edu/courses/cmps112-wm/usr/mzscheme/bin/mzscheme -qr
+;; $Id: blowstack.scm,v 361.3 2009-02-12 18:48:45-08 - - $
+d18 1
+@

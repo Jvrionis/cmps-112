@@ -1,0 +1,4 @@
+mkpspdf hashexample.scm.ps hashexample.scm hashexample.scm.out
+mkpspdf listhash.scm.ps listhash.scm listhash.scm.out
+mkpspdf objtests.scm.ps objtests.scm objtests.scm.out
+mkpspdf symbols.scm.ps symbols.scm symbols.scm.out

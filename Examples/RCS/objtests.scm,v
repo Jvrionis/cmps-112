@@ -1,0 +1,190 @@
+head	1.4;
+access;
+symbols;
+locks;
+comment	@# @;
+
+
+1.4
+date	2014.11.01.00.35.08;	author -;	state -;
+branches;
+next	1.3;
+
+1.3
+date	2009.02.14.01.51.47;	author -;	state -;
+branches;
+next	1.2;
+
+1.2
+date	2009.02.14.01.35.14;	author -;	state -;
+branches;
+next	1.1;
+
+1.1
+date	2009.02.13.03.38.42;	author -;	state -;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.4
+log
+@-
+@
+text
+@#!/afs/cats.ucsc.edu/courses/cmps112-wm/usr/racket/bin/mzscheme -qr
+;; $Id: objtests.scm,v 1.3 2009-02-13 17:51:47-08 - - $
+
+(define e  (exp 1))
+(define pi (atan 0 -1))
+(define i  (sqrt -1))
+
+(define the-list
+     `(
+
+   (arg0     ,(find-system-path 'run-file))
+   (e^ipi    ,(expt e (* i pi)))
+   (hello    world)
+   (integer  3)
+   (list     (car cadr caddr))
+   (log      ,log)
+   (null     ())
+   (number   3.141592653589793238462643383279502884197169399)
+   (pair     (1 . 2))
+   (sqrt-1   ,(sqrt -1))
+   (string   "string")
+   (vector   ,(make-vector 10 0))
+
+))
+
+(define tests `(
+
+   (,boolean?   boolean?)
+   (,char?      char?)
+   (,complex?   complex?)
+   (,integer?   integer?)
+   (,list?      list?)
+   (,number?    number?)
+   (,pair?      pair?)
+   (,path?      path?)
+   (,procedure? procedure?)
+   (,rational?  rational?)
+   (,real?      real?)
+   (,string?    string?)
+   (,symbol?    symbol?)
+   (,vector?    vector?)
+
+))
+
+(define (print-prop element)
+        (let ((key (car element))
+              (val (cadr element)))
+             (printf "~s => ~s:~n" key val)
+             (for-each (lambda (pair)
+                       (when ((car pair) val)
+                       (printf "   ~s~n" (cadr pair))))
+                       tests)
+             (newline)))
+
+(for-each print-prop the-list)
+
+@
+
+
+1.3
+log
+@-
+@
+text
+@d1 2
+a2 2
+#!/afs/cats.ucsc.edu/courses/cmps112-wm/usr/mzscheme/bin/mzscheme -qr
+;; $Id: objtests.scm,v 1.2 2009-02-13 17:35:14-08 - - $
+@
+
+
+1.2
+log
+@-
+@
+text
+@d2 1
+a2 1
+;; $Id: objtests.scm,v 1.1 2009-02-12 19:38:42-08 - - $
+d9 1
+a9 1
+         `(
+d11 43
+a53 38
+           (arg0     ,(find-system-path 'run-file))
+           (e^ipi    ,(expt e (* i pi)))
+           (hello    world)
+           (integer  3)
+           (list     (car cadr caddr))
+           (pair     ,(1 . 2))
+           (log      ,log)
+           (null     ())
+           (number   3.141592653589793238462643383279502884197169399)
+           (root-1   ,(sqrt -1))
+           (string   "string")
+           (vector   ,(make-vector 10 0))
+
+         ))
+
+(define tests
+       `((,number?    number?)
+         (,complex?   complex?)
+         (,real?      real?)
+         (,rational?  rational?)
+         (,integer?   integer?)
+         (,boolean?   boolean?)
+         (,pair?      pair?)
+         (,path?      path?)
+         (,list?      list?)
+         (,symbol?    symbol?)
+         (,char?      char?)
+         (,string?    string?)
+         (,vector?    vector?)
+         (,procedure? procedure?)))
+
+(define (print-prop key val)
+        (printf "~s => ~s:~n" key val)
+        (for-each (lambda (pair)
+                          (when ((car pair) val)
+                                (printf "   ~s~n" (cadr pair))))
+                  tests)
+        (newline))
+d55 1
+a55 1
+(hash-for-each the-hash print-prop)
+@
+
+
+1.1
+log
+@-
+@
+text
+@d2 1
+a2 1
+;; $Id: objtests.scm,v 1.1 2009-02-12 19:10:43-08 - - $
+d8 17
+a24 14
+(define the-hash (make-hash))
+(for-each (lambda (list)
+                  (hash-set! the-hash (car list) (cadr list)))
+         `((foo    "string")
+           (bar    3.141592653589793238462643383279502884197169399)
+           (baz    (car cadr caddr))
+           (qux    3)
+           (null   ())
+           (arg0   ,(find-system-path 'run-file))
+           (root-1 ,(sqrt -1))
+           (e^ipi  ,(expt e (* i pi)))
+           (hello  world)
+           (vector ,(make-vector 10 0))
+           (log    ,log)))
+@

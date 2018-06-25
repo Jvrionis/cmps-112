@@ -1,0 +1,69 @@
+head	1.2;
+access;
+symbols;
+locks;
+comment	@# @;
+
+
+1.2
+date	2014.11.01.00.35.08;	author -;	state -;
+branches;
+next	1.1;
+
+1.1
+date	2009.02.13.03.38.42;	author -;	state -;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@-
+@
+text
+@#!/afs/cats.ucsc.edu/courses/cmps112-wm/usr/racket/bin/mzscheme -qr
+;; $Id: mergesort.scm,v 1.1 2009-02-12 19:38:42-08 - - $
+
+(define (foldl fn unit lis)
+        (if (null? lis) unit
+            (foldl fn (fn unit (car lis)) (cdr lis))))
+
+(define (foldr fn unit lis)
+        (if (null? lis) unit
+            (fn (car lis) (foldr fn unit (cdr lis)))))
+
+(define (grep ok? lis)
+        (define (test hd tl) (if (ok? hd) (cons hd tl) tl))
+        (foldr test '() lis))
+
+(define (mergesort <? lis)
+        (define (flipflop tf) (lambda (_) (set! tf (not tf)) tf))
+        (define (merge lis1 lis2)
+                (cond ((null? lis1) lis2)
+                      ((null? lis2) lis1)
+                      ((<? (car lis1) (car lis2))
+                            (cons (car lis1) (merge (cdr lis1) lis2)))
+                      (else (cons (car lis2) (merge lis1 (cdr lis2))))))
+        (define (msort lis)
+                (if (or (null? lis) (null? (cdr lis))) lis
+                    (merge (msort (grep (flipflop #t) lis))
+                           (msort (grep (flipflop #f) lis)))))
+        (msort lis))
+
+@
+
+
+1.1
+log
+@-
+@
+text
+@d1 2
+a2 2
+#!/afs/cats.ucsc.edu/courses/cmps112-wm/usr/mzscheme/bin/mzscheme -qr
+;; $Id: mergesort.scm,v 361.1 2006-02-17 17:53:42-08 - - $
+@

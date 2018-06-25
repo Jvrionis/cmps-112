@@ -1,0 +1,32 @@
+set!: assignment disallowed;
+ cannot set undefined
+  variable: prog-len
+  context...:
+   /afs/cats.ucsc.edu/users/k/jvrionis/cmps112/asgs/ASG1/./sbi.scm:100:0: write-program-by-line
+==================================================
+sbi.scm: "31-big-o-.sbir"
+==================================================
+(
+(1)
+(2)
+(3)
+(4)
+(5)
+(6)
+(7)
+(8)
+(9)
+(10)
+(11 (input N1))
+(12 (let i 0))
+(13 (let n N1))
+(14 while (if (<= n 1) done))
+(15 (let i (+ i 1)))
+(16 (let f (floor (/ n 2))))
+(17 (if (<> n (* f 2)) odd))
+(18 (let n f))
+(19 (goto while))
+(20 odd (let n (+ (* n 3) 1)))
+(21 (goto while))
+(22 done (print N1 " loops " i " times."))
+)

@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+# $Id: mks,v 1.1 2012-02-23 18:34:28-08 - - $
+#
+# Run Scheme programs and capture output.
+#
+
+$0 =~ s|.*/||;
+system "cid $0";
+for $prog (@ARGV) {
+   system "cid $prog";
+   @commands = `perl -ne 'print if s|^;;TEST: ||' $prog`;
+   print @commands;
+   $lis = "$prog.lis";
+   open LIS, ">$lis" or die "$0: $lis: $!\n";
+   for $command (@commands) {
+      chomp $command;
+      $command =~ s/$/ 2>&1/;
+      print LIS "****$0**** $command\n";
+      print LIS `$command`;
+      printf LIS "****status: 0x%04X\n\n", $?;
+      print "\n";
+   }
+   close LIS;
+   system "mkpspdf $prog.ps $prog $prog.lis";
+}
+

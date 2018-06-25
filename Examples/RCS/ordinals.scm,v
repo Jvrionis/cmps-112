@@ -1,0 +1,49 @@
+head	1.2;
+access;
+symbols;
+locks;
+comment	@# @;
+
+
+1.2
+date	2014.11.01.00.35.08;	author -;	state -;
+branches;
+next	1.1;
+
+1.1
+date	2012.02.01.23.00.05;	author -;	state -;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@-
+@
+text
+@#!/afs/cats.ucsc.edu/courses/cmps112-wm/usr/racket/bin/mzscheme -qr
+;; $Id: ordinals.scm,v 1.1 2012-02-01 15:00:05-08 - - $
+
+(map (lambda (fn)
+             (display (fn '(1 2 3 4 5 6 7 8 9 10)))
+             (newline))
+     (list first second third fourth fifth
+           sixth seventh eighth ninth tenth))
+
+@
+
+
+1.1
+log
+@-
+@
+text
+@d1 2
+a2 2
+#!/afs/cats.ucsc.edu/courses/cmps112-wm/usr/mzscheme/bin/mzscheme -qr
+;; $Id$
+@

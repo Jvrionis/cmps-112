@@ -1,0 +1,70 @@
+head	1.2;
+access;
+symbols;
+locks;
+comment	@# @;
+
+
+1.2
+date	2014.11.01.00.35.08;	author -;	state -;
+branches;
+next	1.1;
+
+1.1
+date	2009.02.13.03.38.42;	author -;	state -;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@-
+@
+text
+@#!/afs/cats.ucsc.edu/courses/cmps112-wm/usr/racket/bin/mzscheme -qr
+;; $Id: sysinfo.scm,v 1.1 2009-02-12 19:38:42-08 - - $
+;;
+;; Print system path information.
+
+(define system-symbols '(
+
+   addon-dir
+   collects-dir
+   desk-dir
+   doc-dir
+   exec-file
+   home-dir
+   init-dir
+   init-file
+   orig-dir
+   pref-dir
+   pref-file
+   run-file
+   sys-dir
+   temp-dir
+
+))
+
+(define (print-sysinfo symbol)
+        (for-each display
+                  (list symbol " = " (find-system-path symbol)))
+        (newline))
+
+(for-each print-sysinfo system-symbols)
+@
+
+
+1.1
+log
+@-
+@
+text
+@d1 2
+a2 2
+#!/afs/cats.ucsc.edu/courses/cmps112-wm/usr/mzscheme/bin/mzscheme -qr
+;; $Id$
+@

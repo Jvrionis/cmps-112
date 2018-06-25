@@ -1,0 +1,63 @@
+head	1.2;
+access;
+symbols;
+locks;
+comment	@# @;
+
+
+1.2
+date	2014.11.01.00.35.08;	author -;	state -;
+branches;
+next	1.1;
+
+1.1
+date	2009.02.13.03.38.42;	author -;	state -;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@-
+@
+text
+@#!/afs/cats.ucsc.edu/courses/cmps112-wm/usr/racket/bin/mzscheme -qr
+;; $Id: readnums.scm,v 1.1 2009-02-12 19:38:42-08 - - $
+
+;;
+;; Read numbers from stdin, stopping at end of file.
+;;
+
+{define (readnumber)
+        (let ((object (read)))
+             (cond [(eof-object? object) object]
+                   [(number? object) (+ object 0.0)]
+                   [else (begin (printf "invalid number: ~a~n" object)
+                                (readnumber))] )) }
+
+{define (testinput)
+        (let ((number (readnumber)))
+             (if (eof-object? number)
+                 (printf "*EOF*~n")
+                 (begin (printf "number = ~a~n" number)
+                        (testinput)))) }
+
+(testinput)
+
+@
+
+
+1.1
+log
+@-
+@
+text
+@d1 2
+a2 2
+#!/afs/cats.ucsc.edu/courses/cmps112-wm/usr/mzscheme/bin/mzscheme -qr
+;; $Id: readnums.scm,v 361.2 2009-02-12 19:12:21-08 - - $
+@

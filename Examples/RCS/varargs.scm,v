@@ -1,0 +1,52 @@
+head	1.2;
+access;
+symbols;
+locks;
+comment	@# @;
+
+
+1.2
+date	2009.02.13.03.41.43;	author -;	state -;
+branches;
+next	1.1;
+
+1.1
+date	2009.02.13.03.38.42;	author -;	state -;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@-
+@
+text
+@;; $Id$
+;;
+;; load with (load "varargs.scm")
+;;
+;; example defining a function with a variable number of params
+;;
+
+(define (writeln . list) (map write list) (newline))
+
+(define (foo fst snd . rem )
+        (writeln "foo = " foo)
+        (writeln "fst = " fst)
+        (writeln "snd = " snd)
+        (writeln "rem = " rem))
+
+@
+
+
+1.1
+log
+@-
+@
+text
+@d1 2
+@

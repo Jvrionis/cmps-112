@@ -1,0 +1,16 @@
+set!: assignment disallowed;
+ cannot set undefined
+  variable: prog-len
+  context...:
+   /afs/cats.ucsc.edu/users/k/jvrionis/cmps112/asgs/ASG1/./sbi.scm:100:0: write-program-by-line
+==================================================
+sbi.scm: "21-let-if.sbir"
+==================================================
+(
+(1)
+(2)
+(3 (let i 1))
+(4 loop (print i))
+(5 (let i (+ i 1)))
+(6 (if (<= i 10) loop))
+)

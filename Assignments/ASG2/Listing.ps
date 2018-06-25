@@ -1,0 +1,2339 @@
+%!PS-Adobe-3.0
+%%BoundingBox: 38 24 574 768
+%%Title: Listing.ps
+%%For: James Michael Vrionis
+%%Creator: GNU Enscript 1.6.6
+%%CreationDate: Fri Dec  8 14:08:42 2017
+%%Orientation: Portrait
+%%Pages: (atend)
+%%DocumentMedia: Letter 612 792 0 () ()
+%%DocumentNeededResources: (atend)
+%%EndComments
+%%BeginProlog
+%%BeginResource: procset Enscript-Prolog 1.6 6
+%
+% Procedures.
+%
+
+/_S {	% save current state
+  /_s save def
+} def
+/_R {	% restore from saved state
+  _s restore
+} def
+
+/S {	% showpage protecting gstate
+  gsave
+  showpage
+  grestore
+} bind def
+
+/MF {	% fontname newfontname -> -	make a new encoded font
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  % insert only valid encoding vectors
+  encoding_vector length 256 eq {
+    newfont /Encoding encoding_vector put
+  } if
+
+  newfontname newfont definefont pop
+} def
+
+/MF_PS { % fontname newfontname -> -	make a new font preserving its enc
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  newfontname newfont definefont pop
+} def
+
+/SF { % fontname width height -> -	set a new font
+  /height exch def
+  /width exch def
+
+  findfont
+  [width 0 0 height 0 0] makefont setfont
+} def
+
+/SUF { % fontname width height -> -	set a new user font
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF
+  /F-gs-user-font width height SF
+} def
+
+/SUF_PS { % fontname width height -> -	set a new user font preserving its enc
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF_PS
+  /F-gs-user-font width height SF
+} def
+
+/M {moveto} bind def
+/s {show} bind def
+
+/Box {	% x y w h -> -			define box path
+  /d_h exch def /d_w exch def /d_y exch def /d_x exch def
+  d_x d_y  moveto
+  d_w 0 rlineto
+  0 d_h rlineto
+  d_w neg 0 rlineto
+  closepath
+} def
+
+/bgs {	% x y height blskip gray str -> -	show string with bg color
+  /str exch def
+  /gray exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    gray setgray
+    fill
+  grestore
+  x y M str s
+} def
+
+/bgcs { % x y height blskip red green blue str -> -  show string with bg color
+  /str exch def
+  /blue exch def
+  /green exch def
+  /red exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    red green blue setrgbcolor
+    fill
+  grestore
+  x y M str s
+} def
+
+% Highlight bars.
+/highlight_bars {	% nlines lineheight output_y_margin gray -> -
+  gsave
+    setgray
+    /ymarg exch def
+    /lineheight exch def
+    /nlines exch def
+
+    % This 2 is just a magic number to sync highlight lines to text.
+    0 d_header_y ymarg sub 2 sub translate
+
+    /cw d_output_w cols div def
+    /nrows d_output_h ymarg 2 mul sub lineheight div cvi def
+
+    % for each column
+    0 1 cols 1 sub {
+      cw mul /xp exch def
+
+      % for each rows
+      0 1 nrows 1 sub {
+        /rn exch def
+        rn lineheight mul neg /yp exch def
+        rn nlines idiv 2 mod 0 eq {
+	  % Draw highlight bar.  4 is just a magic indentation.
+	  xp 4 add yp cw 8 sub lineheight neg Box fill
+	} if
+      } for
+    } for
+
+  grestore
+} def
+
+% Line highlight bar.
+/line_highlight {	% x y width height gray -> -
+  gsave
+    /gray exch def
+    Box gray setgray fill
+  grestore
+} def
+
+% Column separator lines.
+/column_lines {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h translate
+    /cw d_output_w cols div def
+    1 1 cols 1 sub {
+      cw mul 0 moveto
+      0 d_output_h rlineto stroke
+    } for
+  grestore
+} def
+
+% Column borders.
+/column_borders {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h moveto
+    0 d_output_h rlineto
+    d_output_w 0 rlineto
+    0 d_output_h neg rlineto
+    closepath stroke
+  grestore
+} def
+
+% Do the actual underlay drawing
+/draw_underlay {
+  ul_style 0 eq {
+    ul_str true charpath stroke
+  } {
+    ul_str show
+  } ifelse
+} def
+
+% Underlay
+/underlay {	% - -> -
+  gsave
+    0 d_page_h translate
+    d_page_h neg d_page_w atan rotate
+
+    ul_gray setgray
+    ul_font setfont
+    /dw d_page_h dup mul d_page_w dup mul add sqrt def
+    ul_str stringwidth pop dw exch sub 2 div ul_h_ptsize -2 div moveto
+    draw_underlay
+  grestore
+} def
+
+/user_underlay {	% - -> -
+  gsave
+    ul_x ul_y translate
+    ul_angle rotate
+    ul_gray setgray
+    ul_font setfont
+    0 0 ul_h_ptsize 2 div sub moveto
+    draw_underlay
+  grestore
+} def
+
+% Page prefeed
+/page_prefeed {		% bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} def
+
+% Wrapped line markers
+/wrapped_line_mark {	% x y charwith charheight type -> -
+  /type exch def
+  /h exch def
+  /w exch def
+  /y exch def
+  /x exch def
+
+  type 2 eq {
+    % Black boxes (like TeX does)
+    gsave
+      0 setlinewidth
+      x w 4 div add y M
+      0 h rlineto w 2 div 0 rlineto 0 h neg rlineto
+      closepath fill
+    grestore
+  } {
+    type 3 eq {
+      % Small arrows
+      gsave
+        .2 setlinewidth
+        x w 2 div add y h 2 div add M
+        w 4 div 0 rlineto
+        x w 4 div add y lineto stroke
+
+        x w 4 div add w 8 div add y h 4 div add M
+        x w 4 div add y lineto
+	w 4 div h 8 div rlineto stroke
+      grestore
+    } {
+      % do nothing
+    } ifelse
+  } ifelse
+} def
+
+% EPSF import.
+
+/BeginEPSF {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack
+  userdict begin
+  /showpage { } def
+  0 setgray 0 setlinecap
+  1 setlinewidth 0 setlinejoin
+  10 setmiterlimit [ ] 0 setdash newpath
+  /languagelevel where {
+    pop languagelevel
+    1 ne {
+      false setstrokeadjust false setoverprint
+    } if
+  } if
+} bind def
+
+/EndEPSF {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+%%EndResource
+%%BeginResource: procset Enscript-Encoding-88591 1.6 6
+/encoding_vector [
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclam       	/quotedbl     	/numbersign   	
+/dollar       	/percent      	/ampersand    	/quoteright   	
+/parenleft    	/parenright   	/asterisk     	/plus         	
+/comma        	/hyphen       	/period       	/slash        	
+/zero         	/one          	/two          	/three        	
+/four         	/five         	/six          	/seven        	
+/eight        	/nine         	/colon        	/semicolon    	
+/less         	/equal        	/greater      	/question     	
+/at           	/A            	/B            	/C            	
+/D            	/E            	/F            	/G            	
+/H            	/I            	/J            	/K            	
+/L            	/M            	/N            	/O            	
+/P            	/Q            	/R            	/S            	
+/T            	/U            	/V            	/W            	
+/X            	/Y            	/Z            	/bracketleft  	
+/backslash    	/bracketright 	/asciicircum  	/underscore   	
+/quoteleft    	/a            	/b            	/c            	
+/d            	/e            	/f            	/g            	
+/h            	/i            	/j            	/k            	
+/l            	/m            	/n            	/o            	
+/p            	/q            	/r            	/s            	
+/t            	/u            	/v            	/w            	
+/x            	/y            	/z            	/braceleft    	
+/bar          	/braceright   	/tilde        	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclamdown   	/cent         	/sterling     	
+/currency     	/yen          	/brokenbar    	/section      	
+/dieresis     	/copyright    	/ordfeminine  	/guillemotleft	
+/logicalnot   	/hyphen       	/registered   	/macron       	
+/degree       	/plusminus    	/twosuperior  	/threesuperior	
+/acute        	/mu           	/paragraph    	/bullet       	
+/cedilla      	/onesuperior  	/ordmasculine 	/guillemotright	
+/onequarter   	/onehalf      	/threequarters	/questiondown 	
+/Agrave       	/Aacute       	/Acircumflex  	/Atilde       	
+/Adieresis    	/Aring        	/AE           	/Ccedilla     	
+/Egrave       	/Eacute       	/Ecircumflex  	/Edieresis    	
+/Igrave       	/Iacute       	/Icircumflex  	/Idieresis    	
+/Eth          	/Ntilde       	/Ograve       	/Oacute       	
+/Ocircumflex  	/Otilde       	/Odieresis    	/multiply     	
+/Oslash       	/Ugrave       	/Uacute       	/Ucircumflex  	
+/Udieresis    	/Yacute       	/Thorn        	/germandbls   	
+/agrave       	/aacute       	/acircumflex  	/atilde       	
+/adieresis    	/aring        	/ae           	/ccedilla     	
+/egrave       	/eacute       	/ecircumflex  	/edieresis    	
+/igrave       	/iacute       	/icircumflex  	/idieresis    	
+/eth          	/ntilde       	/ograve       	/oacute       	
+/ocircumflex  	/otilde       	/odieresis    	/divide       	
+/oslash       	/ugrave       	/uacute       	/ucircumflex  	
+/udieresis    	/yacute       	/thorn        	/ydieresis    	
+] def
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Courier-Bold
+/HFpt_w 10 def
+/HFpt_h 10 def
+/Courier-Bold /HF-gs-font MF
+/HF /HF-gs-font findfont [HFpt_w 0 0 HFpt_h 0 0] makefont def
+/Courier-Bold /F-gs-font MF
+/F-gs-font 11 11 SF
+/#copies 1 def
+% Pagedevice definitions:
+gs_languagelevel 1 gt {
+  <<
+    /PageSize [612 792] 
+  >> setpagedevice
+} if
+%%BeginResource: procset Enscript-Header-enscript 1.6 6
+%%IncludeResource: font Times-Bold
+%%IncludeResource: font Times-Roman
+
+% Fonts.
+/Times-Bold /HeaderFont-Bold MF
+/HeaderDateF /HeaderFont-Bold findfont 12 scalefont def
+
+/Times-Roman /HeaderFont-Times MF
+/HeaderHDRF /HeaderFont-Times findfont 14 scalefont def
+
+/HeaderPageNumF /Helvetica-Bold findfont 28.8 scalefont def
+
+/do_header {	% print enscript header
+  gsave
+    d_header_x d_header_y translate
+
+    % light bar
+    0 0 d_header_w d_header_h 2 div Box
+    .95 setgray fill
+
+    % dark gray boxes
+    /dbw d_header_h 2 mul def	% dark box width
+    /dbc .7 def			% dark box color
+
+    % left dark box.
+    0 0 dbw d_header_h Box
+    dbc setgray fill
+
+    0 setgray 
+    HeaderDateF setfont
+    moddatestr dup stringwidth pop dbw exch sub 2 div 
+    d_header_h 2 div 2 add moveto show
+    modtimestr dup stringwidth pop dbw exch sub 2 div 
+    d_header_h 5 div moveto show
+
+    % right dark box
+    d_header_w dbw sub 0 dbw d_header_h Box
+    dbc setgray fill
+
+    HeaderPageNumF setfont
+    1 setgray
+    pagenumstr dup
+    stringwidth pop dbw exch sub 2 div d_header_w dbw sub add
+    d_header_h .2 mul moveto show
+
+    % filename
+    0 setgray 
+    HeaderHDRF setfont
+    d_header_w fname stringwidth pop sub 2 div d_header_h 8 div moveto
+    fname show
+
+    % user supplied header string.
+    user_header_p {
+      /h d_header_h 8 div 5 mul def
+
+      % Implement strict enscript compatibility.
+      user_header_center_str () eq user_header_right_str () eq and {
+        d_header_w user_header_left_str stringwidth pop sub 2 div 
+        h moveto user_header_left_str show
+      } {
+        dbw 5 add h moveto user_header_left_str show
+
+        d_header_w user_header_center_str stringwidth pop sub 2 div 
+        h moveto user_header_center_str show
+
+	d_header_w dbw sub 5 sub user_header_right_str stringwidth pop
+	sub h moveto user_header_right_str show
+      } ifelse
+    } if
+
+  grestore
+} def
+%%EndResource
+/d_page_w 536 def
+/d_page_h 744 def
+/d_header_x 0 def
+/d_header_y 708 def
+/d_header_w 536 def
+/d_header_h 36 def
+/d_footer_x 0 def
+/d_footer_y 0 def
+/d_footer_w 536 def
+/d_footer_h 0 def
+/d_output_w 536 def
+/d_output_h 708 def
+/cols 1 def
+%%EndSetup
+%%Page: (1) 1
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 1 def
+/fname (bigint.mli) def
+/fdir (.) def
+/ftail (bigint.mli) def
+% User defined strings:
+/pagenumstr (1) def
+/moddatestr (11/03/17) def
+/modtimestr (07:16:04) def
+/user_header_p true def
+/user_header_left_str (/afs/cats.ucsc.edu/users/k/jvrionis/cmps112/asgs/ASG2/) def
+/user_header_center_str () def
+/user_header_right_str () def
+/user_footer_p false def
+%%EndPageSetup
+column_borders
+do_header
+32.4 694 M (1:) s
+52.2 694 M
+(\(*------------------------------------------------------------------) s
+32.4 682 M (2:) s
+52.2 682 M
+( *) s
+32.4 670 M (3:) s
+52.2 670 M
+( * James Vrionis) s
+32.4 658 M (4:) s
+52.2 658 M
+( * Luke Tanner) s
+32.4 646 M (5:) s
+52.2 646 M
+( * CMPS112) s
+32.4 634 M (6:) s
+52.2 634 M
+( * ASG2) s
+32.4 622 M (7:) s
+52.2 622 M
+( *) s
+32.4 610 M (8:) s
+52.2 610 M
+( *------------------------------------------------------------------*\)) s
+32.4 598 M (9:) s
+25.8 586 M (10:) s
+52.2 586 M
+(module Bigint : sig) s
+25.8 574 M (11:) s
+52.2 574 M
+(   type bigint) s
+25.8 562 M (12:) s
+52.2 562 M
+(   val bigint_of_string : string -> bigint) s
+25.8 550 M (13:) s
+52.2 550 M
+(   val string_of_bigint : bigint -> string) s
+25.8 538 M (14:) s
+52.2 538 M
+(   val add : bigint -> bigint -> bigint) s
+25.8 526 M (15:) s
+52.2 526 M
+(   val sub : bigint -> bigint -> bigint) s
+25.8 514 M (16:) s
+52.2 514 M
+(   val mul : bigint -> bigint -> bigint) s
+25.8 502 M (17:) s
+52.2 502 M
+(   val div : bigint -> bigint -> bigint) s
+25.8 490 M (18:) s
+52.2 490 M
+(   val rem : bigint -> bigint -> bigint) s
+25.8 478 M (19:) s
+52.2 478 M
+(   val pow : bigint -> bigint -> bigint) s
+25.8 466 M (20:) s
+52.2 466 M
+(   val zero : bigint) s
+25.8 454 M (21:) s
+52.2 454 M
+(end) s
+25.8 442 M (22:) s
+_R
+S
+%%Page: (1) 2
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 1 def
+/fname (bigint.ml) def
+/fdir (.) def
+/ftail (bigint.ml) def
+% User defined strings:
+/pagenumstr (1) def
+/moddatestr (11/21/17) def
+/modtimestr (20:54:53) def
+/user_header_p true def
+/user_header_left_str (/afs/cats.ucsc.edu/users/k/jvrionis/cmps112/asgs/ASG2/) def
+/user_header_center_str () def
+/user_header_right_str () def
+/user_footer_p false def
+%%EndPageSetup
+column_borders
+do_header
+32.4 694 M (1:) s
+52.2 694 M
+(\(*------------------------------------------------------------------) s
+32.4 682 M (2:) s
+52.2 682 M
+( *) s
+32.4 670 M (3:) s
+52.2 670 M
+( * James Vrionis) s
+32.4 658 M (4:) s
+52.2 658 M
+( * Luke Tanner) s
+32.4 646 M (5:) s
+52.2 646 M
+( * CMPS112) s
+32.4 634 M (6:) s
+52.2 634 M
+( * ASG2) s
+32.4 622 M (7:) s
+52.2 622 M
+( *) s
+32.4 610 M (8:) s
+52.2 610 M
+( *------------------------------------------------------------------*\)) s
+32.4 598 M (9:) s
+25.8 586 M (10:) s
+52.2 586 M
+(open Printf) s
+25.8 574 M (11:) s
+25.8 562 M (12:) s
+52.2 562 M
+(module Bigint = struct) s
+25.8 550 M (13:) s
+25.8 538 M (14:) s
+52.2 538 M
+(    type sign     = Pos | Neg) s
+25.8 526 M (15:) s
+52.2 526 M
+(    type bigint   = Bigint of sign * int list) s
+25.8 514 M (16:) s
+52.2 514 M
+(    let  radix    = 10) s
+25.8 502 M (17:) s
+52.2 502 M
+(    let  radixlen =  1) s
+25.8 490 M (18:) s
+52.2 490 M
+(\(*------------------------------------------------------------------*\)) s
+25.8 478 M (19:) s
+25.8 466 M (20:) s
+52.2 466 M
+(    let car   = List.hd) s
+25.8 454 M (21:) s
+52.2 454 M
+(    let cdr   = List.tl) s
+25.8 442 M (22:) s
+52.2 442 M
+(    let map   = List.map) s
+25.8 430 M (23:) s
+52.2 430 M
+(    let reverse   = List.rev) s
+25.8 418 M (24:) s
+52.2 418 M
+(    let strcat    = String.concat) s
+25.8 406 M (25:) s
+52.2 406 M
+(    let strlen    = String.length) s
+25.8 394 M (26:) s
+52.2 394 M
+(    let strsub    = String.sub) s
+25.8 382 M (27:) s
+52.2 382 M
+(    let zero      = Bigint \(Pos, []\)) s
+25.8 370 M (28:) s
+25.8 358 M (29:) s
+52.2 358 M
+(\(*--------------------------------------------------------------------) s
+25.8 346 M (30:) s
+52.2 346 M
+(  Char list of Strings:) s
+25.8 334 M (31:) s
+52.2 334 M
+(--------------------------------------------------------------------*\)) s
+25.8 322 M (32:) s
+52.2 322 M
+(    let charlist_of_string str =) s
+25.8 310 M (33:) s
+52.2 310 M
+(        let last = strlen str - 1) s
+25.8 298 M (34:) s
+52.2 298 M
+(        in  let rec charlist pos result =) s
+25.8 286 M (35:) s
+52.2 286 M
+(            if pos < 0) s
+25.8 274 M (36:) s
+52.2 274 M
+(            then result) s
+25.8 262 M (37:) s
+52.2 262 M
+(            else charlist \(pos - 1\) \(str.[pos] :: result\)) s
+25.8 250 M (38:) s
+52.2 250 M
+(        in  charlist last []) s
+25.8 238 M (39:) s
+52.2 238 M
+(    ;;) s
+25.8 226 M (40:) s
+25.8 214 M (41:) s
+25.8 202 M (42:) s
+52.2 202 M
+(\(*--------------------------------------------------------------------) s
+25.8 190 M (43:) s
+52.2 190 M
+(   BigInt of strings \(in-order\):   ) s
+25.8 178 M (44:) s
+52.2 178 M
+(--------------------------------------------------------------------*\)) s
+25.8 166 M (45:) s
+52.2 166 M
+(    let bigint_of_string str =) s
+25.8 154 M (46:) s
+52.2 154 M
+(        let len = strlen str) s
+25.8 142 M (47:) s
+52.2 142 M
+(        in  let to_intlist first =) s
+25.8 130 M (48:) s
+52.2 130 M
+(                let substr = strsub str first \(len - first\) in) s
+25.8 118 M (49:) s
+52.2 118 M
+(                let digit char = int_of_char char - int_of_char '0' in) s
+25.8 106 M (50:) s
+52.2 106 M
+(                map digit \(reverse \(charlist_of_string substr\)\)) s
+25.8 94 M (51:) s
+52.2 94 M
+(            in  if   len = 0 then zero) s
+25.8 82 M (52:) s
+52.2 82 M
+(                else if   str.[0] = '_') s
+25.8 70 M (53:) s
+52.2 70 M
+(                     then Bigint \(Neg, to_intlist 1\)) s
+25.8 58 M (54:) s
+52.2 58 M
+(                     else Bigint \(Pos, to_intlist 0\)) s
+25.8 46 M (55:) s
+52.2 46 M
+(    ;;) s
+25.8 34 M (56:) s
+25.8 22 M (57:) s
+52.2 22 M
+(\(*--------------------------------------------------------------------) s
+25.8 10 M (58:) s
+52.2 10 M
+(   BigInt of strings \(reversed\):) s
+_R
+S
+%%Page: (2) 3
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 2 def
+/fname (bigint.ml) def
+/fdir (.) def
+/ftail (bigint.ml) def
+% User defined strings:
+/pagenumstr (2) def
+/moddatestr (11/21/17) def
+/modtimestr (20:54:53) def
+/user_header_p true def
+/user_header_left_str (/afs/cats.ucsc.edu/users/k/jvrionis/cmps112/asgs/ASG2/) def
+/user_header_center_str () def
+/user_header_right_str () def
+/user_footer_p false def
+%%EndPageSetup
+column_borders
+do_header
+25.8 694 M (59:) s
+52.2 694 M
+(--------------------------------------------------------------------*\)) s
+25.8 682 M (60:) s
+52.2 682 M
+(    let string_of_bigint \(Bigint \(sign, value\)\) =) s
+25.8 670 M (61:) s
+52.2 670 M
+(        match value with) s
+25.8 658 M (62:) s
+52.2 658 M
+(        | []    -> "0") s
+25.8 646 M (63:) s
+52.2 646 M
+(        | value -> let reversed = reverse value) s
+25.8 634 M (64:) s
+52.2 634 M
+(                   in  strcat "") s
+25.8 622 M (65:) s
+52.2 622 M
+(                       \(\(if sign = Pos then "" else "-"\) ::) s
+25.8 610 M (66:) s
+52.2 610 M
+(                        \(map string_of_int reversed\)\)) s
+25.8 598 M (67:) s
+52.2 598 M
+(    ;;) s
+25.8 586 M (68:) s
+25.8 574 M (69:) s
+25.8 562 M (70:) s
+52.2 562 M
+(\(*--------------------------------------------------------------------) s
+25.8 550 M (71:) s
+52.2 550 M
+(  Recursive Subtraction Function:) s
+25.8 538 M (72:) s
+52.2 538 M
+(   \(CTF\) stands for call to function.) s
+25.8 526 M (73:) s
+52.2 526 M
+(--------------------------------------------------------------------*\)) s
+25.8 514 M (74:) s
+52.2 514 M
+(   let rec sub' list1 list2 steal = match \(list1, list2, steal\) with) s
+25.8 502 M (75:) s
+52.2 502 M
+(     | list1, [], 0 -> list1) s
+25.8 490 M (76:) s
+52.2 490 M
+(     | [], list2, 0 -> failwith "Valid only if list2 > list") s
+25.8 478 M (77:) s
+52.2 478 M
+(     | car1::cdr1, [], steal  -> ) s
+25.8 466 M (78:) s
+52.2 466 M
+(         if car1 = 0 then 9 :: \(sub' cdr1 [] 1\)) s
+25.8 454 M (79:) s
+52.2 454 M
+(         else let dif = car1 - steal*1 in dif :: \(sub' cdr1 [] 0\)) s
+25.8 442 M (80:) s
+52.2 442 M
+(     | [], list2, steal -> failwith "Err in sub':Invalid CTF") s
+25.8 430 M (81:) s
+52.2 430 M
+(     | car1::cdr1, car2::cdr2, steal ->) s
+25.8 418 M (82:) s
+52.2 418 M
+(         if car2 > \(car1 - steal*1\) then ) s
+25.8 406 M (83:) s
+52.2 406 M
+(         let dif = \(\(car1 + 10\) - steal*1\) - car2 ) s
+25.8 394 M (84:) s
+52.2 394 M
+(                 in dif :: \(sub' cdr1 cdr2 1\)) s
+25.8 382 M (85:) s
+52.2 382 M
+(         else let dif = \(car1 - steal*1\) - car2) s
+25.8 370 M (86:) s
+52.2 370 M
+(                 in dif :: \(sub' cdr1 cdr2 0\)) s
+25.8 358 M (87:) s
+25.8 346 M (88:) s
+52.2 346 M
+(\(*--------------------------------------------------------------------) s
+25.8 334 M (89:) s
+52.2 334 M
+(    Recursive Add\(\):) s
+25.8 322 M (90:) s
+52.2 322 M
+(--------------------------------------------------------------------*\)) s
+25.8 310 M (91:) s
+52.2 310 M
+(    let rec add' list1 list2 carry = match \(list1, list2, carry\) with) s
+25.8 298 M (92:) s
+52.2 298 M
+(        | list1, [], 0       -> list1) s
+25.8 286 M (93:) s
+52.2 286 M
+(        | [], list2, 0       -> list2) s
+25.8 274 M (94:) s
+52.2 274 M
+(        | list1, [], carry   -> add' list1 [carry] 0) s
+25.8 262 M (95:) s
+52.2 262 M
+(        | [], list2, carry   -> add' [carry] list2 0) s
+25.8 250 M (96:) s
+52.2 250 M
+(        | car1::cdr1, car2::cdr2, carry ->) s
+25.8 238 M (97:) s
+52.2 238 M
+(          let sum = car1 + car2 + carry) s
+25.8 226 M (98:) s
+52.2 226 M
+(          in  sum mod radix :: add' cdr1 cdr2 \(sum / radix\)) s
+25.8 214 M (99:) s
+19.2 202 M (100:) s
+19.2 190 M (101:) s
+52.2 190 M
+(\(*--------------------------------------------------------------------) s
+19.2 178 M (102:) s
+52.2 178 M
+(    Recursive sub\(\):) s
+19.2 166 M (103:) s
+52.2 166 M
+(--------------------------------------------------------------------*\)) s
+19.2 154 M (104:) s
+52.2 154 M
+(    let rec sub' list1 list2 borrow = match\(list1, list2, borrow\) with) s
+19.2 142 M (105:) s
+52.2 142 M
+(        | [], _, _           -> []) s
+19.2 130 M (106:) s
+52.2 130 M
+(        | list1, [], 0       -> list1) s
+19.2 118 M (107:) s
+52.2 118 M
+(        | list1, [], borrow   -> sub' list1 [borrow] 0) s
+19.2 106 M (108:) s
+52.2 106 M
+(        | car1::cdr1, car2::cdr2, borrow ->) s
+19.2 94 M (109:) s
+52.2 94 M
+(          let dif = car1 - borrow - car2  ) s
+19.2 82 M (110:) s
+52.2 82 M
+(          in \(if dif < 0 then dif + 10 :: sub' cdr1 cdr2 1) s
+19.2 70 M (111:) s
+52.2 70 M
+(            else dif :: sub' cdr1 cdr2 0\) ) s
+19.2 58 M (112:) s
+19.2 46 M (113:) s
+52.2 46 M
+(\(*--------------------------------------------------------------------) s
+19.2 34 M (114:) s
+52.2 34 M
+(  Compare Recursively Defined:) s
+19.2 22 M (115:) s
+52.2 22 M
+(   Bool -> Bool ->  Bool) s
+19.2 10 M (116:) s
+52.2 10 M
+(   && is LR: e1 && e2, e1 is evaluated first \(if false\) e2 is not ) s
+_R
+S
+%%Page: (3) 4
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 3 def
+/fname (bigint.ml) def
+/fdir (.) def
+/ftail (bigint.ml) def
+% User defined strings:
+/pagenumstr (3) def
+/moddatestr (11/21/17) def
+/modtimestr (20:54:53) def
+/user_header_p true def
+/user_header_left_str (/afs/cats.ucsc.edu/users/k/jvrionis/cmps112/asgs/ASG2/) def
+/user_header_center_str () def
+/user_header_right_str () def
+/user_footer_p false def
+%%EndPageSetup
+column_borders
+do_header
+19.2 694 M (117:) s
+52.2 694 M
+(   evaluated) s
+19.2 682 M (118:) s
+52.2 682 M
+(--------------------------------------------------------------------*\)) s
+19.2 670 M (119:) s
+52.2 670 M
+(    let rec cmp' list1 list2 = match \(list1, list2\) with  ) s
+19.2 658 M (120:) s
+52.2 658 M
+(        | [], []                 ->  0) s
+19.2 646 M (121:) s
+52.2 646 M
+(        | list1, []              ->  1) s
+19.2 634 M (122:) s
+52.2 634 M
+(        | [], list2              -> -1) s
+19.2 622 M (123:) s
+52.2 622 M
+(        | car1::cdr1, car2::cdr2 ->) s
+19.2 610 M (124:) s
+52.2 610 M
+(            let result = cmp' cdr1 cdr2) s
+19.2 598 M (125:) s
+52.2 598 M
+(            in if result = 0 && car1 <> car2 then ) s
+19.2 586 M (126:) s
+52.2 586 M
+(               if car1 > car2 then 1 ) s
+19.2 574 M (127:) s
+52.2 574 M
+(               else if car1 < car2 then -1) s
+19.2 562 M (128:) s
+52.2 562 M
+(               else 0 ) s
+19.2 550 M (129:) s
+52.2 550 M
+(            else result) s
+19.2 538 M (130:) s
+52.2 538 M
+(    ;;) s
+19.2 526 M (131:) s
+19.2 514 M (132:) s
+52.2 514 M
+(\(*--------------------------------------------------------------------) s
+19.2 502 M (133:) s
+52.2 502 M
+(  Into Base Value:) s
+19.2 490 M (134:) s
+52.2 490 M
+(--------------------------------------------------------------------*\)) s
+19.2 478 M (135:) s
+52.2 478 M
+(    let rec into base value count =) s
+19.2 466 M (136:) s
+52.2 466 M
+(        if \(cmp' value base = 1\) then base, 0) s
+19.2 454 M (137:) s
+52.2 454 M
+(        else let check = add' value value 0) s
+19.2 442 M (138:) s
+52.2 442 M
+(            in if \(cmp' check base = 1\) then value, count) s
+19.2 430 M (139:) s
+52.2 430 M
+(        else into base check \(count+1\)) s
+19.2 418 M (140:) s
+52.2 418 M
+(    ;;) s
+19.2 406 M (141:) s
+19.2 394 M (142:) s
+52.2 394 M
+(\(*--------------------------------------------------------------------) s
+19.2 382 M (143:) s
+52.2 382 M
+(  Time MSBs\(\):) s
+19.2 370 M (144:) s
+52.2 370 M
+(--------------------------------------------------------------------*\)) s
+19.2 358 M (145:) s
+52.2 358 M
+(    let trimzeros list =) s
+19.2 346 M (146:) s
+52.2 346 M
+(        let rec trimzeros' list' = match list' with) s
+19.2 334 M (147:) s
+52.2 334 M
+(            | []       -> []) s
+19.2 322 M (148:) s
+52.2 322 M
+(            | [0]      -> []) s
+19.2 310 M (149:) s
+52.2 310 M
+(            | car::cdr ->) s
+19.2 298 M (150:) s
+52.2 298 M
+(                let cdr' = trimzeros' cdr) s
+19.2 286 M (151:) s
+52.2 286 M
+(                in  match car, cdr' with) s
+19.2 274 M (152:) s
+52.2 274 M
+(                    | 0, [] -> []) s
+19.2 262 M (153:) s
+52.2 262 M
+(                    | car, cdr' -> car::cdr') s
+19.2 250 M (154:) s
+52.2 250 M
+(            in trimzeros' list) s
+19.2 238 M (155:) s
+52.2 238 M
+(    ;;) s
+19.2 226 M (156:) s
+19.2 214 M (157:) s
+52.2 214 M
+(\(*--------------------------------------------------------------------) s
+19.2 202 M (158:) s
+52.2 202 M
+( Recursive value doubling:) s
+19.2 190 M (159:) s
+19.2 178 M (160:) s
+52.2 178 M
+(--------------------------------------------------------------------*\)) s
+19.2 166 M (161:) s
+52.2 166 M
+(    let rec doubler value count = match \(value, count\) with) s
+19.2 154 M (162:) s
+52.2 154 M
+(        | value, 0      -> value) s
+19.2 142 M (163:) s
+52.2 142 M
+(        | value, count  -> \(doubler \(add' value value 0\) \(count-1\)\)) s
+19.2 130 M (164:) s
+52.2 130 M
+(    ;;) s
+19.2 118 M (165:) s
+19.2 106 M (166:) s
+52.2 106 M
+(\(*--------------------------------------------------------------------) s
+19.2 94 M (167:) s
+52.2 94 M
+(  Recursive Division\(\):) s
+19.2 82 M (168:) s
+19.2 70 M (169:) s
+52.2 70 M
+(--------------------------------------------------------------------*\)) s
+19.2 58 M (170:) s
+52.2 58 M
+(    let rec divrem' dividend divisor sum =) s
+19.2 46 M (171:) s
+52.2 46 M
+(        if \(cmp' dividend [] = 0\) then sum, [0]) s
+19.2 34 M (172:) s
+52.2 34 M
+(        else let num, count = into dividend divisor 1) s
+19.2 22 M (173:) s
+52.2 22 M
+(        in if count = 0 then sum, dividend) s
+19.2 10 M (174:) s
+52.2 10 M
+(        else divrem' \(trimzeros \(sub' dividend num 0\)\) ) s
+_R
+S
+%%Page: (4) 5
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 4 def
+/fname (bigint.ml) def
+/fdir (.) def
+/ftail (bigint.ml) def
+% User defined strings:
+/pagenumstr (4) def
+/moddatestr (11/21/17) def
+/modtimestr (20:54:53) def
+/user_header_p true def
+/user_header_left_str (/afs/cats.ucsc.edu/users/k/jvrionis/cmps112/asgs/ASG2/) def
+/user_header_center_str () def
+/user_header_right_str () def
+/user_footer_p false def
+%%EndPageSetup
+column_borders
+do_header
+19.2 694 M (175:) s
+52.2 694 M
+(                   divisor \(add' sum \(doubler [1] \(count - 1\)\) 0\)) s
+19.2 682 M (176:) s
+52.2 682 M
+(    ;;) s
+19.2 670 M (177:) s
+19.2 658 M (178:) s
+19.2 646 M (179:) s
+52.2 646 M
+(\(*--------------------------------------------------------------------) s
+19.2 634 M (180:) s
+52.2 634 M
+(    Recursive Multiply\(\):) s
+19.2 622 M (181:) s
+52.2 622 M
+(    ) s
+19.2 610 M (182:) s
+52.2 610 M
+(--------------------------------------------------------------------*\)) s
+19.2 598 M (183:) s
+52.2 598 M
+(   let rec mul' value base sum = match \(value, base, sum\) with) s
+19.2 586 M (184:) s
+52.2 586 M
+(        | [], _, sum         -> sum) s
+19.2 574 M (185:) s
+52.2 574 M
+(        | [1], base, sum  -> add' base sum 0) s
+19.2 562 M (186:) s
+52.2 562 M
+(        | value, base, sum -> ) s
+19.2 550 M (187:) s
+52.2 550 M
+(            let num, count = into value [2] 1) s
+19.2 538 M (188:) s
+52.2 538 M
+(            in mul' \(trimzeros \(sub' value num 0\)\) base ) s
+19.2 526 M (189:) s
+52.2 526 M
+(            \(add' sum \(doubler base count\) 0\)) s
+19.2 514 M (190:) s
+19.2 502 M (191:) s
+52.2 502 M
+(\(*--------------------------------------------------------------------) s
+19.2 490 M (192:) s
+52.2 490 M
+(  Recursive Exponentiation\(\):) s
+19.2 478 M (193:) s
+19.2 466 M (194:) s
+52.2 466 M
+(--------------------------------------------------------------------*\)) s
+19.2 454 M (195:) s
+52.2 454 M
+(let rec expt value count = match \(value, count\) with) s
+19.2 442 M (196:) s
+52.2 442 M
+(        | value, 0      -> value) s
+19.2 430 M (197:) s
+52.2 430 M
+(        | value, count  -> \(expt \(mul' value value []\) \(count-1\)\)) s
+19.2 418 M (198:) s
+52.2 418 M
+(    ;;) s
+19.2 406 M (199:) s
+19.2 394 M (200:) s
+52.2 394 M
+(\(*--------------------------------------------------------------------) s
+19.2 382 M (201:) s
+52.2 382 M
+(  Recursive Power\(\):) s
+19.2 370 M (202:) s
+19.2 358 M (203:) s
+52.2 358 M
+(--------------------------------------------------------------------*\)) s
+19.2 346 M (204:) s
+52.2 346 M
+(    let rec pow' expo base prod = match \(expo, base, prod\) with) s
+19.2 334 M (205:) s
+52.2 334 M
+(        | [], _, prod      -> Pos, prod) s
+19.2 322 M (206:) s
+52.2 322 M
+(        | [1], base, prod  -> Neg, mul' base prod []) s
+19.2 310 M (207:) s
+52.2 310 M
+(        | expo, base, prod -> ) s
+19.2 298 M (208:) s
+52.2 298 M
+(            let num, count = into expo [2] 1) s
+19.2 286 M (209:) s
+52.2 286 M
+(            in pow' \(trimzeros \(sub' expo num 0\)\) ) s
+19.2 274 M (210:) s
+52.2 274 M
+(            base \(mul' prod \(expt base count\) []\)) s
+19.2 262 M (211:) s
+52.2 262 M
+(    ;;) s
+19.2 250 M (212:) s
+19.2 238 M (213:) s
+52.2 238 M
+(\(*--------------------------------------------------------------------) s
+19.2 226 M (214:) s
+52.2 226 M
+(  Compare:) s
+19.2 214 M (215:) s
+52.2 214 M
+(    if the sign is the same then Compare) s
+19.2 202 M (216:) s
+52.2 202 M
+(--------------------------------------------------------------------*\)) s
+19.2 190 M (217:) s
+52.2 190 M
+(    let cmp \(Bigint \(neg1, arg1\)\) \(Bigint \(neg2, arg2\)\) =) s
+19.2 178 M (218:) s
+52.2 178 M
+(        if neg1 = neg2 ) s
+19.2 166 M (219:) s
+52.2 166 M
+(            then cmp' arg1 arg2) s
+19.2 154 M (220:) s
+52.2 154 M
+(        else if neg1 = Pos) s
+19.2 142 M (221:) s
+52.2 142 M
+(            then 1) s
+19.2 130 M (222:) s
+52.2 130 M
+(            else -1) s
+19.2 118 M (223:) s
+52.2 118 M
+(    ;;) s
+19.2 106 M (224:) s
+52.2 106 M
+(    ) s
+19.2 94 M (225:) s
+52.2 94 M
+(\(*--------------------------------------------------------------------) s
+19.2 82 M (226:) s
+52.2 82 M
+(  Add\(\):) s
+19.2 70 M (227:) s
+52.2 70 M
+(      The process or skill of calculating the total of two or ) s
+19.2 58 M (228:) s
+52.2 58 M
+(      more numbers or amounts.) s
+19.2 46 M (229:) s
+52.2 46 M
+(--------------------------------------------------------------------*\)) s
+19.2 34 M (230:) s
+52.2 34 M
+(    let add \(Bigint\(neg1, arg1\)\) \(Bigint\(neg2, arg2\)\) =) s
+19.2 22 M (231:) s
+52.2 22 M
+(        if neg1 = neg2 then Bigint\(neg1, add' arg1 arg2 0\)) s
+19.2 10 M (232:) s
+52.2 10 M
+(        else if\(cmp' arg1 arg2\) = 1 ) s
+_R
+S
+%%Page: (5) 6
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 5 def
+/fname (bigint.ml) def
+/fdir (.) def
+/ftail (bigint.ml) def
+% User defined strings:
+/pagenumstr (5) def
+/moddatestr (11/21/17) def
+/modtimestr (20:54:53) def
+/user_header_p true def
+/user_header_left_str (/afs/cats.ucsc.edu/users/k/jvrionis/cmps112/asgs/ASG2/) def
+/user_header_center_str () def
+/user_header_right_str () def
+/user_footer_p false def
+%%EndPageSetup
+column_borders
+do_header
+19.2 694 M (233:) s
+52.2 694 M
+(            then Bigint\(neg1, \(trimzeros\(sub' arg1 arg2 0\) \)\)) s
+19.2 682 M (234:) s
+52.2 682 M
+(        else if\(cmp' arg1 arg2\) = -1) s
+19.2 670 M (235:) s
+52.2 670 M
+(            then Bigint\(neg2, \(trimzeros\(sub' arg2 arg1 0\) \)\)) s
+19.2 658 M (236:) s
+52.2 658 M
+(        else zero) s
+19.2 646 M (237:) s
+52.2 646 M
+(    ;;) s
+19.2 634 M (238:) s
+19.2 622 M (239:) s
+52.2 622 M
+(\(*--------------------------------------------------------------------) s
+19.2 610 M (240:) s
+52.2 610 M
+(  Subtraction\(\):) s
+19.2 598 M (241:) s
+52.2 598 M
+(      Anal -> analyze ) s
+19.2 586 M (242:) s
+52.2 586 M
+(--------------------------------------------------------------------*\)) s
+19.2 574 M (243:) s
+52.2 574 M
+( let sub \(Bigint \(neg1, arg1\)\) \(Bigint \(neg2, arg2\)\) =) s
+19.2 562 M (244:) s
+52.2 562 M
+(        if neg1 = neg2 then ) s
+19.2 550 M (245:) s
+52.2 550 M
+(            let anal = cmp' arg1 arg2 in) s
+19.2 538 M (246:) s
+52.2 538 M
+(                 if anal > 0 ) s
+19.2 526 M (247:) s
+52.2 526 M
+(                    then Bigint \(neg1, trimzeros \(sub' arg1 arg2 0\)\)) s
+19.2 514 M (248:) s
+52.2 514 M
+(                 else if anal < 0 then ) s
+19.2 502 M (249:) s
+52.2 502 M
+(                     let sign = if neg1 = Pos then Neg else Pos) s
+19.2 490 M (250:) s
+52.2 490 M
+(                     in  Bigint \(sign, trimzeros \(sub' arg2 arg1 0\)\)) s
+19.2 478 M (251:) s
+52.2 478 M
+(                 else zero) s
+19.2 466 M (252:) s
+52.2 466 M
+(        else Bigint \(neg1, add' arg1 arg2 0\) ) s
+19.2 454 M (253:) s
+19.2 442 M (254:) s
+19.2 430 M (255:) s
+52.2 430 M
+(\(*--------------------------------------------------------------------) s
+19.2 418 M (256:) s
+52.2 418 M
+(  Multiply\(\):) s
+19.2 406 M (257:) s
+52.2 406 M
+(      Anal -> analyze ) s
+19.2 394 M (258:) s
+52.2 394 M
+(      combine quantities under given rules to obtain their product.   ) s
+19.2 382 M (259:) s
+52.2 382 M
+(--------------------------------------------------------------------*\)) s
+19.2 370 M (260:) s
+52.2 370 M
+(    let mul \(Bigint \(neg1, arg1\)\) \(Bigint \(neg2, arg2\)\) =) s
+19.2 358 M (261:) s
+52.2 358 M
+(        let anal = \(cmp' arg1 arg2 = 1\) in \(if neg1 = neg2) s
+19.2 346 M (262:) s
+52.2 346 M
+(            then \(if anal) s
+19.2 334 M (263:) s
+52.2 334 M
+(                then Bigint \(Pos, mul' arg2 arg1 []\)) s
+19.2 322 M (264:) s
+52.2 322 M
+(                else Bigint \(Pos, mul' arg1 arg2 []\)\)) s
+19.2 310 M (265:) s
+52.2 310 M
+(            else \(if anal) s
+19.2 298 M (266:) s
+52.2 298 M
+(                then Bigint \(Neg, mul' arg2 arg1 []\)) s
+19.2 286 M (267:) s
+52.2 286 M
+(                else Bigint \(Neg, mul' arg1 arg2 []\)\)\)) s
+19.2 274 M (268:) s
+52.2 274 M
+(    ;;) s
+19.2 262 M (269:) s
+19.2 250 M (270:) s
+52.2 250 M
+(\(*--------------------------------------------------------------------) s
+19.2 238 M (271:) s
+52.2 238 M
+(  Power\(\):) s
+19.2 226 M (272:) s
+52.2 226 M
+(      The number of times as indicated by an exponent that a number ) s
+19.2 214 M (273:) s
+52.2 214 M
+(      occurs as a factor in a product) s
+19.2 202 M (274:) s
+52.2 202 M
+(--------------------------------------------------------------------*\)) s
+19.2 190 M (275:) s
+52.2 190 M
+(    let pow \(Bigint \(neg1, arg1\)\) \(Bigint \(neg2, arg2\)\) =) s
+19.2 178 M (276:) s
+52.2 178 M
+(        let sign, value = pow' arg2 arg1 [1]) s
+19.2 166 M (277:) s
+52.2 166 M
+(        in if neg1 = Pos) s
+19.2 154 M (278:) s
+52.2 154 M
+(            then Bigint \(Pos, value\)) s
+19.2 142 M (279:) s
+52.2 142 M
+(            else Bigint \(sign, value\)) s
+19.2 130 M (280:) s
+52.2 130 M
+(    ;;) s
+19.2 118 M (281:) s
+19.2 106 M (282:) s
+52.2 106 M
+(\(*--------------------------------------------------------------------) s
+19.2 94 M (283:) s
+52.2 94 M
+(  Division/Remainder\(\):) s
+19.2 82 M (284:) s
+52.2 82 M
+(      Return the remainder of 2 terms by division) s
+19.2 70 M (285:) s
+19.2 58 M (286:) s
+52.2 58 M
+(--------------------------------------------------------------------*\)) s
+19.2 46 M (287:) s
+52.2 46 M
+(    let divrem \(Bigint \(neg1, arg1\)\) \(Bigint \(neg2, arg2\)\) =) s
+19.2 34 M (288:) s
+52.2 34 M
+(    let quot, xcess = divrem' arg1 arg2 []) s
+19.2 22 M (289:) s
+52.2 22 M
+(        in match \(neg1, neg2\) with) s
+19.2 10 M (290:) s
+52.2 10 M
+(            | Pos, Pos -> Bigint \(Pos, quot\), Bigint \(Pos, xcess\)) s
+_R
+S
+%%Page: (6) 7
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 6 def
+/fname (bigint.ml) def
+/fdir (.) def
+/ftail (bigint.ml) def
+% User defined strings:
+/pagenumstr (6) def
+/moddatestr (11/21/17) def
+/modtimestr (20:54:53) def
+/user_header_p true def
+/user_header_left_str (/afs/cats.ucsc.edu/users/k/jvrionis/cmps112/asgs/ASG2/) def
+/user_header_center_str () def
+/user_header_right_str () def
+/user_footer_p false def
+%%EndPageSetup
+column_borders
+do_header
+19.2 694 M (291:) s
+52.2 694 M
+(            | Neg, Pos -> Bigint \(Neg, add' quot [1] 0\),) s
+19.2 682 M (292:) s
+52.2 682 M
+(                          Bigint \(Pos, trimzeros \(sub' arg2 xcess 0\)\)) s
+19.2 670 M (293:) s
+52.2 670 M
+(            | Pos, Neg -> Bigint \(Neg, quot\), Bigint \(Pos, xcess\)) s
+19.2 658 M (294:) s
+52.2 658 M
+(            | Neg, Neg -> Bigint \(Pos, add' quot [1] 0\),) s
+19.2 646 M (295:) s
+52.2 646 M
+(                          Bigint \(Pos, trimzeros \(sub' arg2 xcess 0\)\)) s
+19.2 634 M (296:) s
+52.2 634 M
+(    ;;) s
+19.2 622 M (297:) s
+19.2 610 M (298:) s
+52.2 610 M
+(\(*--------------------------------------------------------------------) s
+19.2 598 M (299:) s
+52.2 598 M
+(  Remainder\(\):) s
+19.2 586 M (300:) s
+52.2 586 M
+(      Return the remainder by division ) s
+19.2 574 M (301:) s
+52.2 574 M
+(--------------------------------------------------------------------*\)) s
+19.2 562 M (302:) s
+52.2 562 M
+(    let rem \(Bigint \(neg1, arg1\)\) \(Bigint \(neg2, arg2\)\) =) s
+19.2 550 M (303:) s
+52.2 550 M
+(        let _, remainder = divrem \(Bigint \(neg1, arg1\)\) ) s
+19.2 538 M (304:) s
+52.2 538 M
+(                                  \(Bigint \(neg2, arg2\)\)) s
+19.2 526 M (305:) s
+52.2 526 M
+(        in remainder) s
+19.2 514 M (306:) s
+52.2 514 M
+(    ;;) s
+19.2 502 M (307:) s
+19.2 490 M (308:) s
+52.2 490 M
+(\(*--------------------------------------------------------------------) s
+19.2 478 M (309:) s
+52.2 478 M
+(  Division\(\):) s
+19.2 466 M (310:) s
+52.2 466 M
+(      Return the Quotient of a Bigint by Division) s
+19.2 454 M (311:) s
+52.2 454 M
+(--------------------------------------------------------------------*\)) s
+19.2 442 M (312:) s
+52.2 442 M
+(    let div \(Bigint \(neg1, arg1\)\) \(Bigint \(neg2, arg2\)\) =) s
+19.2 430 M (313:) s
+52.2 430 M
+(        let quotient, _ = divrem \(Bigint \(neg1, arg1\)\) ) s
+19.2 418 M (314:) s
+52.2 418 M
+(                                 \(Bigint \(neg2, arg2\)\)) s
+19.2 406 M (315:) s
+52.2 406 M
+(        in quotient) s
+19.2 394 M (316:) s
+52.2 394 M
+(    ;;) s
+19.2 382 M (317:) s
+52.2 382 M
+(\(*------------------------------------------------------------------*\)) s
+19.2 370 M (318:) s
+52.2 370 M
+(end) s
+19.2 358 M (319:) s
+_R
+S
+%%Page: (1) 8
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 1 def
+/fname (maindc.ml) def
+/fdir (.) def
+/ftail (maindc.ml) def
+% User defined strings:
+/pagenumstr (1) def
+/moddatestr (11/03/17) def
+/modtimestr (07:16:04) def
+/user_header_p true def
+/user_header_left_str (/afs/cats.ucsc.edu/users/k/jvrionis/cmps112/asgs/ASG2/) def
+/user_header_center_str () def
+/user_header_right_str () def
+/user_footer_p false def
+%%EndPageSetup
+column_borders
+do_header
+32.4 694 M (1:) s
+52.2 694 M
+(\(*------------------------------------------------------------------) s
+32.4 682 M (2:) s
+52.2 682 M
+( *) s
+32.4 670 M (3:) s
+52.2 670 M
+( * James Vrionis) s
+32.4 658 M (4:) s
+52.2 658 M
+( * Luke Tanner) s
+32.4 646 M (5:) s
+52.2 646 M
+( * CMPS112) s
+32.4 634 M (6:) s
+52.2 634 M
+( * ASG2) s
+32.4 622 M (7:) s
+52.2 622 M
+( *) s
+32.4 610 M (8:) s
+52.2 610 M
+( *------------------------------------------------------------------*\)) s
+32.4 598 M (9:) s
+25.8 586 M (10:) s
+52.2 586 M
+(include Scanner) s
+25.8 574 M (11:) s
+52.2 574 M
+(include Bigint) s
+25.8 562 M (12:) s
+25.8 550 M (13:) s
+52.2 550 M
+(open Bigint) s
+25.8 538 M (14:) s
+52.2 538 M
+(open Printf) s
+25.8 526 M (15:) s
+52.2 526 M
+(open Scanner) s
+25.8 514 M (16:) s
+25.8 502 M (17:) s
+52.2 502 M
+(type stack_t = Bigint.bigint Stack.t) s
+25.8 490 M (18:) s
+52.2 490 M
+(let push = Stack.push) s
+25.8 478 M (19:) s
+52.2 478 M
+(let pop = Stack.pop) s
+25.8 466 M (20:) s
+25.8 454 M (21:) s
+52.2 454 M
+(let ord thechar = int_of_char thechar) s
+25.8 442 M (22:) s
+52.2 442 M
+(type binop_t = bigint -> bigint -> bigint) s
+25.8 430 M (23:) s
+25.8 418 M (24:) s
+52.2 418 M
+(let print_number number = printf "%s\\n%!" \(string_of_bigint number\)) s
+25.8 406 M (25:) s
+25.8 394 M (26:) s
+52.2 394 M
+(let print_stackempty \(\) = printf "stack empty\\n%!") s
+25.8 382 M (27:) s
+25.8 370 M (28:) s
+52.2 370 M
+(let executereg \(thestack: stack_t\) \(oper: char\) \(reg: int\) =) s
+25.8 358 M (29:) s
+52.2 358 M
+(    try match oper with) s
+25.8 346 M (30:) s
+52.2 346 M
+(        | 'l' -> printf "operator l reg 0%o is unimplemented\\n%!" reg) s
+25.8 334 M (31:) s
+52.2 334 M
+(        | 's' -> printf "operator s reg 0%o is unimplemented\\n%!" reg) s
+25.8 322 M (32:) s
+52.2 322 M
+(        | _   -> printf "0%o 0%o is unimplemented\\n%!" \(ord oper\) reg) s
+25.8 310 M (33:) s
+52.2 310 M
+(    with Stack.Empty -> print_stackempty\(\)) s
+25.8 298 M (34:) s
+25.8 286 M (35:) s
+52.2 286 M
+(let executebinop \(thestack: stack_t\) \(oper: binop_t\) =) s
+25.8 274 M (36:) s
+52.2 274 M
+(    try let right = pop thestack) s
+25.8 262 M (37:) s
+52.2 262 M
+(        in  try let left = pop thestack) s
+25.8 250 M (38:) s
+52.2 250 M
+(                in  push \(oper left right\) thestack) s
+25.8 238 M (39:) s
+52.2 238 M
+(            with Stack.Empty -> \(print_stackempty \(\);) s
+25.8 226 M (40:) s
+52.2 226 M
+(                                 push right thestack\)) s
+25.8 214 M (41:) s
+52.2 214 M
+(    with Stack.Empty -> print_stackempty \(\)) s
+25.8 202 M (42:) s
+25.8 190 M (43:) s
+52.2 190 M
+(let execute \(thestack: stack_t\) \(oper: char\) =) s
+25.8 178 M (44:) s
+52.2 178 M
+(    try match oper with) s
+25.8 166 M (45:) s
+52.2 166 M
+(        | '+'  -> executebinop thestack Bigint.add) s
+25.8 154 M (46:) s
+52.2 154 M
+(        | '-'  -> executebinop thestack Bigint.sub) s
+25.8 142 M (47:) s
+52.2 142 M
+(        | '*'  -> executebinop thestack Bigint.mul) s
+25.8 130 M (48:) s
+52.2 130 M
+(        | '/'  -> executebinop thestack Bigint.div) s
+25.8 118 M (49:) s
+52.2 118 M
+(        | '%'  -> executebinop thestack Bigint.rem) s
+25.8 106 M (50:) s
+52.2 106 M
+(        | '^'  -> executebinop thestack Bigint.pow) s
+25.8 94 M (51:) s
+52.2 94 M
+(        | 'c'  -> Stack.clear thestack) s
+25.8 82 M (52:) s
+52.2 82 M
+(        | 'd'  -> push \(Stack.top thestack\) thestack) s
+25.8 70 M (53:) s
+52.2 70 M
+(        | 'f'  -> Stack.iter print_number thestack) s
+25.8 58 M (54:) s
+52.2 58 M
+(        | 'l'  -> failwith "operator l scanned with no register") s
+25.8 46 M (55:) s
+52.2 46 M
+(        | 'p'  -> print_number \(Stack.top thestack\)) s
+25.8 34 M (56:) s
+52.2 34 M
+(        | 'q'  -> raise End_of_file) s
+25.8 22 M (57:) s
+52.2 22 M
+(        | 's'  -> failwith "operator s scanned with no register") s
+25.8 10 M (58:) s
+52.2 10 M
+(        | '\\n' -> \(\)) s
+_R
+S
+%%Page: (2) 9
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 2 def
+/fname (maindc.ml) def
+/fdir (.) def
+/ftail (maindc.ml) def
+% User defined strings:
+/pagenumstr (2) def
+/moddatestr (11/03/17) def
+/modtimestr (07:16:04) def
+/user_header_p true def
+/user_header_left_str (/afs/cats.ucsc.edu/users/k/jvrionis/cmps112/asgs/ASG2/) def
+/user_header_center_str () def
+/user_header_right_str () def
+/user_footer_p false def
+%%EndPageSetup
+column_borders
+do_header
+25.8 694 M (59:) s
+52.2 694 M
+(        | ' '  -> \(\)) s
+25.8 682 M (60:) s
+52.2 682 M
+(        | _    -> printf "0%o is unimplemented\\n%!" \(ord oper\)) s
+25.8 670 M (61:) s
+52.2 670 M
+(    with Stack.Empty -> print_stackempty\(\)) s
+25.8 658 M (62:) s
+25.8 646 M (63:) s
+52.2 646 M
+(let toploop \(thestack: stack_t\) inputchannel =) s
+25.8 634 M (64:) s
+52.2 634 M
+(    let scanbuf = Lexing.from_channel inputchannel in) s
+25.8 622 M (65:) s
+52.2 622 M
+(    let rec toploop \(\) = ) s
+25.8 610 M (66:) s
+52.2 610 M
+(        try  let nexttoken = Scanner.scanner scanbuf) s
+25.8 598 M (67:) s
+52.2 598 M
+(             in  \(match nexttoken with) s
+25.8 586 M (68:) s
+52.2 586 M
+(                 | Number number       -> push number thestack) s
+25.8 574 M (69:) s
+52.2 574 M
+(                 | Regoper \(oper, reg\) -> executereg thestack oper reg) s
+25.8 562 M (70:) s
+52.2 562 M
+(                 | Operator oper       -> execute thestack oper) s
+25.8 550 M (71:) s
+52.2 550 M
+(                 \);) s
+25.8 538 M (72:) s
+52.2 538 M
+(             toploop \(\)) s
+25.8 526 M (73:) s
+52.2 526 M
+(        with End_of_file -> printf "End_of_file\\n%!";) s
+25.8 514 M (74:) s
+52.2 514 M
+(    in  toploop \(\)) s
+25.8 502 M (75:) s
+25.8 490 M (76:) s
+52.2 490 M
+(let readfiles \(\) =) s
+25.8 478 M (77:) s
+52.2 478 M
+(    let thestack : bigint Stack.t = Stack.create \(\)) s
+25.8 466 M (78:) s
+52.2 466 M
+(    in  \(\(if Array.length Sys.argv > 1 ) s
+25.8 454 M (79:) s
+52.2 454 M
+(         then try  let thefile = open_in Sys.argv.\(1\)) s
+25.8 442 M (80:) s
+52.2 442 M
+(                   in  toploop thestack thefile) s
+25.8 430 M (81:) s
+52.2 430 M
+(              with Sys_error message -> \() s
+25.8 418 M (82:) s
+52.2 418 M
+(                   printf "%s: %s\\n%!" Sys.argv.\(0\) message;) s
+25.8 406 M (83:) s
+52.2 406 M
+(                   exit 1\)\);) s
+25.8 394 M (84:) s
+52.2 394 M
+(        toploop thestack stdin\)) s
+25.8 382 M (85:) s
+25.8 370 M (86:) s
+52.2 370 M
+(let interact \(\) =) s
+25.8 358 M (87:) s
+52.2 358 M
+(    let thestack : bigint Stack.t = Stack.create \(\)) s
+25.8 346 M (88:) s
+52.2 346 M
+(    in  toploop thestack stdin) s
+25.8 334 M (89:) s
+25.8 322 M (90:) s
+52.2 322 M
+(let _ = if not !Sys.interactive then readfiles \(\)) s
+25.8 310 M (91:) s
+_R
+S
+%%Page: (1) 10
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 1 def
+/fname (scanner.mll) def
+/fdir (.) def
+/ftail (scanner.mll) def
+% User defined strings:
+/pagenumstr (1) def
+/moddatestr (11/03/17) def
+/modtimestr (07:16:04) def
+/user_header_p true def
+/user_header_left_str (/afs/cats.ucsc.edu/users/k/jvrionis/cmps112/asgs/ASG2/) def
+/user_header_center_str () def
+/user_header_right_str () def
+/user_footer_p false def
+%%EndPageSetup
+column_borders
+do_header
+32.4 694 M (1:) s
+52.2 694 M
+(\(*------------------------------------------------------------------) s
+32.4 682 M (2:) s
+52.2 682 M
+( *) s
+32.4 670 M (3:) s
+52.2 670 M
+( * James Vrionis) s
+32.4 658 M (4:) s
+52.2 658 M
+( * Luke Tanner) s
+32.4 646 M (5:) s
+52.2 646 M
+( * CMPS112) s
+32.4 634 M (6:) s
+52.2 634 M
+( * ASG2) s
+32.4 622 M (7:) s
+52.2 622 M
+( *) s
+32.4 610 M (8:) s
+52.2 610 M
+( *------------------------------------------------------------------*\)) s
+32.4 598 M (9:) s
+25.8 586 M (10:) s
+52.2 586 M
+({) s
+25.8 574 M (11:) s
+25.8 562 M (12:) s
+52.2 562 M
+(module Scanner = struct) s
+25.8 550 M (13:) s
+52.2 550 M
+(    include Bigint) s
+25.8 538 M (14:) s
+25.8 526 M (15:) s
+52.2 526 M
+(    type token = Number   of Bigint.bigint) s
+25.8 514 M (16:) s
+52.2 514 M
+(               | Regoper  of char * int) s
+25.8 502 M (17:) s
+52.2 502 M
+(               | Operator of char) s
+25.8 490 M (18:) s
+25.8 478 M (19:) s
+52.2 478 M
+(    let bigstr = Bigint.bigint_of_string) s
+25.8 466 M (20:) s
+52.2 466 M
+(    let lexeme = Lexing.lexeme) s
+25.8 454 M (21:) s
+52.2 454 M
+(    let ord    = int_of_char) s
+25.8 442 M (22:) s
+52.2 442 M
+(    let strlen = String.length) s
+25.8 430 M (23:) s
+25.8 418 M (24:) s
+52.2 418 M
+(    let regoper lexbuf =) s
+25.8 406 M (25:) s
+52.2 406 M
+(        let token = lexeme lexbuf) s
+25.8 394 M (26:) s
+52.2 394 M
+(        in  Regoper \(token.[0], ord token.[1]\)) s
+25.8 382 M (27:) s
+25.8 370 M (28:) s
+52.2 370 M
+(}) s
+25.8 358 M (29:) s
+25.8 346 M (30:) s
+52.2 346 M
+(let number  = '_'? ['0' - '9']*) s
+25.8 334 M (31:) s
+52.2 334 M
+(let regoper = ['s' 'l']) s
+25.8 322 M (32:) s
+25.8 310 M (33:) s
+52.2 310 M
+(rule scanner = parse) s
+25.8 298 M (34:) s
+52.2 298 M
+(   | number    { Number \(bigstr \(lexeme lexbuf\)\) }) s
+25.8 286 M (35:) s
+52.2 286 M
+(   | regoper _ { regoper lexbuf }) s
+25.8 274 M (36:) s
+52.2 274 M
+(   | _         { Operator \(lexeme lexbuf\).[0] }) s
+25.8 262 M (37:) s
+52.2 262 M
+(   | eof       { raise End_of_file }) s
+25.8 250 M (38:) s
+25.8 238 M (39:) s
+52.2 238 M
+({) s
+25.8 226 M (40:) s
+25.8 214 M (41:) s
+52.2 214 M
+(end) s
+25.8 202 M (42:) s
+25.8 190 M (43:) s
+52.2 190 M
+(}) s
+_R
+S
+%%Page: (1) 11
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 1 def
+/fname (dc.ml) def
+/fdir (.) def
+/ftail (dc.ml) def
+% User defined strings:
+/pagenumstr (1) def
+/moddatestr (11/02/17) def
+/modtimestr (21:02:29) def
+/user_header_p true def
+/user_header_left_str (/afs/cats.ucsc.edu/users/k/jvrionis/cmps112/asgs/ASG2/) def
+/user_header_center_str () def
+/user_header_right_str () def
+/user_footer_p false def
+%%EndPageSetup
+column_borders
+do_header
+32.4 694 M (1:) s
+52.2 694 M
+(\(* $Id: dc.ml,v 1.1 2011-04-26 13:39:18-07 - - $ *\)) s
+32.4 682 M (2:) s
+32.4 670 M (3:) s
+52.2 670 M
+(\(*) s
+32.4 658 M (4:) s
+52.2 658 M
+(* This file is useless for compilation.  However, for interactive) s
+32.4 646 M (5:) s
+52.2 646 M
+(* testing it make loading all three files easier.  Normally for) s
+32.4 634 M (6:) s
+52.2 634 M
+(* interactive use, type) s
+32.4 622 M (7:) s
+52.2 622 M
+(*) s
+32.4 610 M (8:) s
+52.2 610 M
+(*    #use "dc.ml";;) s
+32.4 598 M (9:) s
+52.2 598 M
+(*) s
+25.8 586 M (10:) s
+52.2 586 M
+(* at the toplevel.  Alternately, to run it directly without) s
+25.8 574 M (11:) s
+52.2 574 M
+(* interacting with the toplevel, just use:) s
+25.8 562 M (12:) s
+52.2 562 M
+(*) s
+25.8 550 M (13:) s
+52.2 550 M
+(*    ocaml dc.ml) s
+25.8 538 M (14:) s
+52.2 538 M
+(*) s
+25.8 526 M (15:) s
+52.2 526 M
+(* which will run the program without need for compilation.) s
+25.8 514 M (16:) s
+52.2 514 M
+(*\)) s
+25.8 502 M (17:) s
+25.8 490 M (18:) s
+52.2 490 M
+(#use "bigint.ml";;) s
+25.8 478 M (19:) s
+52.2 478 M
+(#use "scanner.ml";;) s
+25.8 466 M (20:) s
+52.2 466 M
+(#use "maindc.ml";;) s
+25.8 454 M (21:) s
+_R
+S
+%%Page: (1) 12
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 1 def
+/fname (Makefile) def
+/fdir (.) def
+/ftail (Makefile) def
+% User defined strings:
+/pagenumstr (1) def
+/moddatestr (12/08/17) def
+/modtimestr (14:08:05) def
+/user_header_p true def
+/user_header_left_str (/afs/cats.ucsc.edu/users/k/jvrionis/cmps112/asgs/ASG2/) def
+/user_header_center_str () def
+/user_header_right_str () def
+/user_footer_p false def
+%%EndPageSetup
+column_borders
+do_header
+32.4 694 M (1:) s
+52.2 694 M
+(#  James Vrionis) s
+32.4 682 M (2:) s
+52.2 682 M
+(#  Luke Tanner) s
+32.4 670 M (3:) s
+52.2 670 M
+(#  CMPS112) s
+32.4 658 M (4:) s
+52.2 658 M
+(#  ASG2) s
+32.4 646 M (5:) s
+52.2 646 M
+( ) s
+32.4 634 M (6:) s
+32.4 622 M (7:) s
+32.4 610 M (8:) s
+52.2 610 M
+(MKFILE    = Makefile) s
+32.4 598 M (9:) s
+52.2 598 M
+(DEPSFILE  = ${MKFILE}.deps) s
+25.8 586 M (10:) s
+52.2 586 M
+(NOINCLUDE = ci clean spotless) s
+25.8 574 M (11:) s
+52.2 574 M
+(NEEDINCL  = ${filter ${NOINCLUDE}, ${MAKECMDGOALS}}) s
+25.8 562 M (12:) s
+52.2 562 M
+(SUBMAKE   = ${MAKE} --no-print-directory) s
+25.8 550 M (13:) s
+25.8 538 M (14:) s
+52.2 538 M
+(SOURCE    = bigint.mli bigint.ml maindc.ml scanner.mll) s
+25.8 526 M (15:) s
+52.2 526 M
+(ALLSRC    = ${SOURCE} dc.ml ${MKFILE}) s
+25.8 514 M (16:) s
+52.2 514 M
+(OBJCMO    = bigint.cmo scanner.cmo maindc.cmo) s
+25.8 502 M (17:) s
+52.2 502 M
+(OBJCMI    = ${patsubst %.cmo, %.cmi, ${OBJCMO}}) s
+25.8 490 M (18:) s
+52.2 490 M
+(CAMLRUN   = ocamldc) s
+25.8 478 M (19:) s
+52.2 478 M
+(LISTING   = Listing.ps) s
+25.8 466 M (20:) s
+25.8 454 M (21:) s
+52.2 454 M
+(all : ${CAMLRUN}) s
+25.8 442 M (22:) s
+25.8 430 M (23:) s
+52.2 430 M
+(${CAMLRUN} : ${OBJCMO} ${OBJCMI}) s
+25.8 418 M (24:) s
+52.2 418 M
+(        ocamlc ${OBJCMO} -o ${CAMLRUN}) s
+25.8 406 M (25:) s
+25.8 394 M (26:) s
+52.2 394 M
+(%.cmi : %.mli) s
+25.8 382 M (27:) s
+52.2 382 M
+(        ocamlc -c $<) s
+25.8 370 M (28:) s
+25.8 358 M (29:) s
+52.2 358 M
+(%.cmo : %.ml) s
+25.8 346 M (30:) s
+52.2 346 M
+(        ocamlc -c $<) s
+25.8 334 M (31:) s
+25.8 322 M (32:) s
+52.2 322 M
+(%.ml : %.mll) s
+25.8 310 M (33:) s
+52.2 310 M
+(        ocamllex $<) s
+25.8 298 M (34:) s
+25.8 286 M (35:) s
+52.2 286 M
+(clean :) s
+25.8 274 M (36:) s
+52.2 274 M
+(        - rm ${OBJCMO} ${OBJCMI} ${DEPSFILE} scanner.ml ocamldc) s
+25.8 262 M (37:) s
+52.2 262 M
+(        - rm *.log *.ocamldcout *.dcout) s
+25.8 250 M (38:) s
+25.8 238 M (39:) s
+52.2 238 M
+(spotless : clean) s
+25.8 226 M (40:) s
+52.2 226 M
+(        - rm ${CAMLRUN} ${LISTING} ${LISTING:.ps=.pdf}) s
+25.8 214 M (41:) s
+25.8 202 M (42:) s
+52.2 202 M
+(ci : ${RCSFILES}) s
+25.8 190 M (43:) s
+52.2 190 M
+(        cid + ${ALLSRC}) s
+25.8 178 M (44:) s
+52.2 178 M
+(        checksource ${ALLSRC}) s
+25.8 166 M (45:) s
+25.8 154 M (46:) s
+52.2 154 M
+(deps : ${SOURCE}) s
+25.8 142 M (47:) s
+52.2 142 M
+(        ocamldep ${SOURCE} >${DEPSFILE}) s
+25.8 130 M (48:) s
+25.8 118 M (49:) s
+52.2 118 M
+(${DEPSFILE} :) s
+25.8 106 M (50:) s
+52.2 106 M
+(        @ touch ${DEPSFILE}) s
+25.8 94 M (51:) s
+52.2 94 M
+(        ${SUBMAKE} deps) s
+25.8 82 M (52:) s
+25.8 70 M (53:) s
+52.2 70 M
+(lis : ${ALLSRC}) s
+25.8 58 M (54:) s
+52.2 58 M
+(        mkpspdf ${LISTING} ${ALLSRC} ${DEPSFILE}) s
+25.8 46 M (55:) s
+25.8 34 M (56:) s
+52.2 34 M
+(again :) s
+25.8 22 M (57:) s
+52.2 22 M
+(        ${SUBMAKE} spotless ci deps) s
+25.8 10 M (58:) s
+52.2 10 M
+(        ${SUBMAKE} all lis) s
+_R
+S
+%%Page: (2) 13
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 2 def
+/fname (Makefile) def
+/fdir (.) def
+/ftail (Makefile) def
+% User defined strings:
+/pagenumstr (2) def
+/moddatestr (12/08/17) def
+/modtimestr (14:08:05) def
+/user_header_p true def
+/user_header_left_str (/afs/cats.ucsc.edu/users/k/jvrionis/cmps112/asgs/ASG2/) def
+/user_header_center_str () def
+/user_header_right_str () def
+/user_footer_p false def
+%%EndPageSetup
+column_borders
+do_header
+25.8 694 M (59:) s
+25.8 682 M (60:) s
+52.2 682 M
+(ifeq \(${NEEDINCL}, \)) s
+25.8 670 M (61:) s
+52.2 670 M
+(include ${DEPSFILE}) s
+25.8 658 M (62:) s
+52.2 658 M
+(endif) s
+25.8 646 M (63:) s
+25.8 634 M (64:) s
+52.2 634 M
+(.PRECIOUS : scanner.ml) s
+_R
+S
+%%Page: (1) 14
+%%BeginPageSetup
+_S
+38 24 translate
+/pagenum 1 def
+/fname (Makefile.deps) def
+/fdir (.) def
+/ftail (Makefile.deps) def
+% User defined strings:
+/pagenumstr (1) def
+/moddatestr (11/03/17) def
+/modtimestr (07:32:33) def
+/user_header_p true def
+/user_header_left_str (/afs/cats.ucsc.edu/users/k/jvrionis/cmps112/asgs/ASG2/) def
+/user_header_center_str () def
+/user_header_right_str () def
+/user_footer_p false def
+%%EndPageSetup
+column_borders
+do_header
+32.4 694 M (1:) s
+52.2 694 M
+(bigint.cmi :) s
+32.4 682 M (2:) s
+52.2 682 M
+(bigint.cmo : bigint.cmi) s
+32.4 670 M (3:) s
+52.2 670 M
+(bigint.cmx : bigint.cmi) s
+32.4 658 M (4:) s
+52.2 658 M
+(maindc.cmo : bigint.cmi) s
+32.4 646 M (5:) s
+52.2 646 M
+(maindc.cmx : bigint.cmx) s
+_R
+S
+%%Trailer
+%%Pages: 14
+%%DocumentNeededResources: font Times-Roman Courier-Bold Times-Bold 
+%%EOF

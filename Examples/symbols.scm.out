@@ -1,0 +1,23 @@
+2 ^ 16 = 65536.0
+log 2 = 0.6931471805599453
+log10 2 = 0.30102999566398114
+
+*symbol-table*:
+exp : procedure = #<procedure:exp>
+ceil : procedure = #<procedure:ceiling>
+^ : procedure = #<procedure:expt>
+rem : procedure = #<procedure:...es/./symbols.scm:35:18>
+quot : procedure = #<procedure:...es/./symbols.scm:34:18>
+log10 : procedure = #<procedure:...es/./symbols.scm:32:18>
+div : procedure = #<procedure:...es/./symbols.scm:31:18>
+e : real = 2.718281828459045
+sqrt_2 : real = 1.4142135623730951
+log10_2 : real = 0.3010299956639812
++ : procedure = #<procedure:+>
+floor : procedure = #<procedure:floor>
+n : real = 4294967296.0
+a : vector = #(0.0 0.0 0.0 3.141592653589793 0.0 0.0 0.0 0.0 0.0 0.0)
+pi : real = 3.141592653589793
+mod : procedure = #<procedure:...es/./symbols.scm:33:18>
+sqrt : procedure = #<procedure:sqrt>
+log : procedure = #<procedure:log>

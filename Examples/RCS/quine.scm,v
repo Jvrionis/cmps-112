@@ -1,0 +1,31 @@
+head	1.1;
+access;
+symbols;
+locks;
+comment	@# @;
+
+
+1.1
+date	2009.02.13.03.38.42;	author -;	state -;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@-
+@
+text
+@
+     ((lambda (x)
+       (list x (list (quote quote) x)))
+      (quote
+         (lambda (x)
+           (list x (list (quote quote) x)))))
+
+;; $Id: quine.scm,v 1.2 2009-02-12 19:05:14-08 - - $
+@

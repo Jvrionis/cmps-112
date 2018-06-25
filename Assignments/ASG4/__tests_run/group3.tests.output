@@ -1,0 +1,24 @@
+GNU Prolog 1.4.4 (64 bits)
+Compiled Nov  6 2014, 18:04:28 with gcc
+By Daniel Diaz
+Copyright (C) 1999-2013 Daniel Diaz
+| ?- $Id: group3.tests,v 1.2 2016-11-21 14:06:16-08 - - $
+
+yes
+| ?- compiling /afs/cats.ucsc.edu/users/k/jvrionis/cmps112/asgs/ASG4/database.pl for byte code...
+/afs/cats.ucsc.edu/users/k/jvrionis/cmps112/asgs/ASG4/database.pl compiled, 74 lines read - 11179 bytes written, 8 ms
+
+(2 ms) yes
+| ?- compiling /afs/cats.ucsc.edu/users/k/jvrionis/cmps112/asgs/ASG4/functions.pl for byte code...
+/afs/cats.ucsc.edu/users/k/jvrionis/cmps112/asgs/ASG4/functions.pl compiled, 205 lines read - 16726 bytes written, 9 ms
+
+(2 ms) yes
+| ?- Invalid Input: Arrival and Destination airports are both San Jose        
+Expected Input: fly(Depart, Arrive).
+
+no
+| ?- Invalid Input: Arrival and Destination airports are both Dallas-Ft.Worth 
+Expected Input: fly(Depart, Arrive).
+
+no
+| ?- 

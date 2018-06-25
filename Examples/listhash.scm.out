@@ -1,0 +1,8 @@
+
+whole list = ((label (foo bar)) ((line 2)) (sec (sec line)) ((line 4)) (last (label)) ((end)))
+
+sec = ((sec (sec line)) ((line 4)) (last (label)) ((end)))
+
+label = ((label (foo bar)) ((line 2)) (sec (sec line)) ((line 4)) (last (label)) ((end)))
+
+last = ((last (label)) ((end)))

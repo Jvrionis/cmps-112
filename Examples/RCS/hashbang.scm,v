@@ -1,0 +1,55 @@
+head	1.2;
+access;
+symbols;
+locks;
+comment	@# @;
+
+
+1.2
+date	2014.11.01.00.35.08;	author -;	state -;
+branches;
+next	1.1;
+
+1.1
+date	2009.02.13.03.38.42;	author -;	state -;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@-
+@
+text
+@#!/afs/cats.ucsc.edu/courses/cmps112-wm/usr/racket/bin/mzscheme -qr
+(define RCSID
+   "$Id: hashbang.scm,v 1.1 2009-02-12 19:38:42-08 - - $")
+
+;;
+;; This program shows how to use a Unix hashbang to run Scheme.
+;; Put the hashbang at the top of the file and include the
+;; program in the file.
+;;
+
+
+   [display RCSID]
+   [newline]
+@
+
+
+1.1
+log
+@-
+@
+text
+@d1 1
+a1 1
+#!/afs/cats.ucsc.edu/courses/cmps112-wm/usr/mzscheme/bin/mzscheme -qr
+d3 1
+a3 1
+   "$Id: hashbang.scm,v 361.2 2009-02-12 19:06:17-08 - - $")
+@

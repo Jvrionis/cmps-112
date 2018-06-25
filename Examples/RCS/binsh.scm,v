@@ -1,0 +1,57 @@
+head	1.2;
+access;
+symbols;
+locks;
+comment	@# @;
+
+
+1.2
+date	2014.11.01.00.35.08;	author -;	state -;
+branches;
+next	1.1;
+
+1.1
+date	2009.02.13.03.38.42;	author -;	state -;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@-
+@
+text
+@#!/bin/sh
+":";exec mzscheme -qr $0 "$@@"
+;; $Id: binsh.scm,v 1.1 2009-02-12 19:38:42-08 - - $
+
+;;
+;; This file shows how to execute mzscheme using the shell
+;; Normally a hashbang would refer to the actual binary.
+;; This file is then bilingual.  When seen by the shell,
+;; it execs mzscheme which must be somewhere in your path.
+;; when seen by Scheme, the semi-colon in the exec line
+;; appears as a comment.
+;;
+
+(printf "~a~n" "Hello, world!")
+(printf "~s~n" (current-command-line-arguments))
+
+;;TEST: binsh.scm
+@
+
+
+1.1
+log
+@-
+@
+text
+@d3 1
+a3 1
+;; $Id: binsh.scm,v 361.2 2009-02-12 18:48:35-08 - - $
+d17 1
+@

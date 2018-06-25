@@ -1,0 +1,46 @@
+arg0 => #<path:./objtests.scm>:
+   path?
+
+e^ipi => -1.0+1.2246063538223773e-16i:
+   complex?
+   number?
+
+hello => world:
+   symbol?
+
+integer => 3:
+   complex?
+   integer?
+   number?
+   rational?
+   real?
+
+list => (car cadr caddr):
+   list?
+   pair?
+
+log => #<procedure:log>:
+   procedure?
+
+null => ():
+   list?
+
+number => 3.141592653589793:
+   complex?
+   number?
+   rational?
+   real?
+
+pair => (1 . 2):
+   pair?
+
+sqrt-1 => 0+1i:
+   complex?
+   number?
+
+string => "string":
+   string?
+
+vector => #(0 0 0 0 0 0 0 0 0 0):
+   vector?
+
